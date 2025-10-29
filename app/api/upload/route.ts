@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
-// @ts-expect-error: we'll rely on runtime lib typing from @vercel/blob
 import { put } from "@vercel/blob";
 
 // Handle POST /api/upload
 export async function POST(request: Request) {
   try {
-    // Read multipart/form-data from the request
+    // Read the multipart/form-data body
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
 
@@ -16,18 +15,18 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate a filename in blob storage
+    // Make a unique-ish filename in blob storage
     const blobName = `players/${Date.now()}-${file.name}`;
 
-    // Upload the binary to Vercel Blob.
-    // access: "public" means the returned .url is a public CDN URL.
+    // Upload file bytes to Vercel Blob
     const blob = await put(blobName, file, {
-      access: "public",
-      token: process.env.BLOB_READ_WRITE_TOKEN,
+      access: "public", // public URL from CDN
+      token: process.env.BLOB_READ_WRITE_TOKEN, // provided via .env.local or Vercel project env
     });
 
+    // Respond with the URL so the client can display it
     return NextResponse.json({
-      url: blob.url, // this is the permanent URL for the image
+      url: blob.url,
     });
   } catch (err) {
     console.error("Upload error:", err);
