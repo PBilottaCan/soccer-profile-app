@@ -4,6 +4,7 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { createClient } from "redis";
 import type { PersistedTotals } from "@/lib/playerTotals";
+import { revalidatePath } from "next/cache";
 
 async function getRedis() {
   const url = process.env.REDIS_URL;
@@ -30,6 +31,8 @@ export async function POST(req: Request) {
     const value: PersistedTotals = { goals, assists };
     await client.set(keyFor(playerId), JSON.stringify(value));
     await client.quit();
+    revalidatePath("/");
+    revalidatePath(`/player/${playerId}`);
     return NextResponse.json({ success: true });
   } catch (e) {
     console.error("Save totals error:", e);

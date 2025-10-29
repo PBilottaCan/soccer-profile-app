@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "redis";
+import { revalidatePath } from "next/cache";
 
 async function getRedisClient() {
   const url = process.env.REDIS_URL;
@@ -26,6 +27,8 @@ export async function POST(request: Request) {
     const client = await getRedisClient();
     await client.set(`player:${playerId}:photoUrl`, photoUrl);
     await client.quit();
+    revalidatePath("/");
+    revalidatePath(`/player/${playerId}`);
 
     return NextResponse.json({ success: true });
   } catch (error) {
