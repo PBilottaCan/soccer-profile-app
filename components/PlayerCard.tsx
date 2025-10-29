@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Player, getPlayerTotals } from "@/data/players";
+import { getLevelForPoints } from "@/data/levels";
 
 type Props = {
   player: Player;
@@ -8,42 +9,65 @@ type Props = {
 
 export default function PlayerCard({ player }: Props) {
   const totals = getPlayerTotals(player);
+  const levelInfo = getLevelForPoints(player.points);
 
   return (
     <Link
       href={`/player/${player.id}`}
-      className="bg-white rounded-xl shadow p-4 flex flex-col items-center text-center hover:shadow-lg transition"
+      className="bg-white rounded-xl shadow p-4 flex flex-col items-center text-center hover:shadow-lg hover:-translate-y-0.5 transition"
     >
-      <div className="w-24 h-24 rounded-full overflow-hidden border border-gray-200">
+      {/* Player photo */}
+      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-red-600 bg-white flex items-center justify-center">
         <Image
           src={player.photoUrl}
           alt={player.name}
           width={96}
           height={96}
-          className="object-cover w-full h-full"
+          className="object-contain w-full h-full"
         />
       </div>
 
+      {/* Basic identity */}
       <div className="mt-3">
-        <div className="text-lg font-bold leading-tight">
+        <div className="text-lg font-bold leading-tight text-gray-900">
           #{player.number} {player.name}
         </div>
-        <div className="text-xs inline-block bg-gray-100 text-gray-700 rounded-full px-2 py-1 font-medium mt-1">
+
+        <div className="text-[11px] inline-block bg-red-600 text-white rounded-full px-2 py-1 font-semibold uppercase tracking-wide mt-1">
           {player.position}
         </div>
       </div>
 
+      {/* Level / points */}
+      <div className="mt-3 flex flex-col items-center gap-1">
+        <div className="text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-full px-2 py-1">
+          {levelInfo.name}
+        </div>
+        <div className="text-[11px] text-gray-600 font-medium">
+          {player.points} pts
+        </div>
+      </div>
+
+      {/* Season summary stats */}
       <div className="mt-4 flex gap-4 text-sm font-semibold">
         <div className="flex flex-col">
-          <span className="text-gray-500 text-xs">G</span>
+          <span className="text-gray-500 text-[11px] uppercase tracking-wide">
+            G
+          </span>
           <span>{totals.goals}</span>
         </div>
+
         <div className="flex flex-col">
-          <span className="text-gray-500 text-xs">A</span>
+          <span className="text-gray-500 text-[11px] uppercase tracking-wide">
+            A
+          </span>
           <span>{totals.assists}</span>
         </div>
+
         <div className="flex flex-col">
-          <span className="text-gray-500 text-xs">GP</span>
+          <span className="text-gray-500 text-[11px] uppercase tracking-wide">
+            GP
+          </span>
           <span>{totals.gamesPlayed}</span>
         </div>
       </div>
