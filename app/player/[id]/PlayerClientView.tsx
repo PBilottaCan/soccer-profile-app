@@ -8,55 +8,40 @@ import StatAdjuster from "@/components/StatAdjuster";
 import StatTable from "@/components/StatTable";
 import { Player, getPlayerTotals } from "@/data/players";
 
-export default function PlayerClientView({
-  playerFromServer,
-}: {
-  playerFromServer: Player;
-}) {
-  // Start with the player's current photoUrl
-  // After upload, we'll get a permanent hosted URL and set it here.
+export default function PlayerClientView({ playerFromServer }: { playerFromServer: Player }) {
   const [photoUrl, setPhotoUrl] = useState(playerFromServer.photoUrl);
+  const [savingPhoto, setSavingPhoto] = useState(false);
 
-  // We still compute totals with the base player's stats:
-  const totals = getPlayerTotals({
-    ...playerFromServer,
-    photoUrl,
-  });
+  const totals = getPlayerTotals({ ...playerFromServer, photoUrl });
+
+  async function handlePhotoChange(newUrl: string) {
+    setPhotoUrl(newUrl); // instant UI
+    try {
+      setSavingPhoto(true);
+      await fetch("/api/player/photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId: playerFromServer.id, photoUrl: newUrl }),
+      });
+    } catch (e) {
+      console.error("Failed to persist photo URL", e);
+    } finally {
+      setSavingPhoto(false);
+    }
+  }
 
   return (
     <main className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        {/* Back nav */}
-        <Link
-          href="/"
-          className="text-sm text-red-600 hover:underline font-medium"
-        >
+        <Link href="/" className="text-sm text-red-600 hover:underline font-medium">
           ← Back to Team Roster
         </Link>
 
-        {/* Profile card (uses updated photoUrl) */}
-        <PlayerProfileCard
-          player={{
-            ...playerFromServer,
-            photoUrl,
-          }}
-        />
+        <PlayerProfileCard player={{ ...playerFromServer, photoUrl }} />
+        <PhotoUploader initialPhotoUrl={photoUrl} onChange={handlePhotoChange} />
+        {savingPhoto && <div className="text-[11px] text-red-600 font-semibold">Saving photo...</div>}
 
-        {/* Photo uploader (updates photoUrl, and tries to persist via Blob) */}
-        <PhotoUploader
-          initialPhotoUrl={photoUrl}
-          onChange={(newUrl) => {
-            setPhotoUrl(newUrl);
-          }}
-        />
-
-        {/* Stat quick adjust (still local only for now) */}
-        <StatAdjuster
-          initialGoals={totals.goals}
-          initialAssists={totals.assists}
-        />
-
-        {/* Per-game log */}
+        <StatAdjuster initialGoals={totals.goals} initialAssists={totals.assists} />
         <StatTable stats={playerFromServer.stats} />
       </div>
     </main>
