@@ -3,9 +3,14 @@ export const runtime = "nodejs";
 import PlayerCard from "@/components/PlayerCard";
 import { players } from "@/data/players";
 import { getPersistedTotalsMap } from "@/lib/playerTotals";
+import { getPersistedPhotoMap } from "@/lib/playerPhotos";
 
 export default async function HomePage() {
-  const totalsMap = await getPersistedTotalsMap(players.map((p) => p.id));
+  const playerIds = players.map((p) => p.id);
+  const [totalsMap, photoMap] = await Promise.all([
+    getPersistedTotalsMap(playerIds),
+    getPersistedPhotoMap(playerIds),
+  ]);
 
   return (
     <main className="min-h-screen bg-gray-100 p-6">
@@ -20,6 +25,7 @@ export default async function HomePage() {
               key={p.id}
               player={p}
               totalsOverride={totalsMap[p.id]}
+              photoOverride={photoMap[p.id]}
             />
           ))}
         </div>

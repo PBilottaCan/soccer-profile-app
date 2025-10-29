@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Player, getPlayerTotals } from "@/data/players";
 import { getLevelForPoints } from "@/data/levels";
@@ -7,13 +6,19 @@ import type { PersistedTotals } from "@/lib/playerTotals";
 type Props = {
   player: Player;
   totalsOverride?: PersistedTotals;
+  photoOverride?: string;
 };
 
-export default function PlayerCard({ player, totalsOverride }: Props) {
+export default function PlayerCard({
+  player,
+  totalsOverride,
+  photoOverride,
+}: Props) {
   const totals = getPlayerTotals(player);
   const levelInfo = getLevelForPoints(player.points);
   const goals = totalsOverride?.goals ?? totals.goals;
   const assists = totalsOverride?.assists ?? totals.assists;
+  const photoUrl = photoOverride ?? player.photoUrl;
 
   return (
     <Link
@@ -22,11 +27,10 @@ export default function PlayerCard({ player, totalsOverride }: Props) {
     >
       {/* Player photo */}
       <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-red-600 bg-white flex items-center justify-center">
-        <Image
-          src={player.photoUrl}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={photoUrl}
           alt={player.name}
-          width={96}
-          height={96}
           className="object-contain w-full h-full"
         />
       </div>

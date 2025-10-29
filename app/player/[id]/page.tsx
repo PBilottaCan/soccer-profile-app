@@ -5,6 +5,7 @@ import { getPlayerById, Player } from "@/data/players";
 import PlayerClientView from "./PlayerClientView";
 import type { PersistedTotals } from "@/lib/playerTotals";
 import { getPersistedTotals } from "@/lib/playerTotals";
+import { getPersistedPhotoUrl } from "@/lib/playerPhotos";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -25,6 +26,7 @@ export default async function PlayerPage({ params }: PageProps) {
 
   // Prefer persisted totals; fall back to computed from the seed stats
   const saved = await getPersistedTotals(id);
+  const persistedPhoto = await getPersistedPhotoUrl(id);
   const fallbackGoals = base.stats.reduce((s, g) => s + g.goals, 0);
   const fallbackAssists = base.stats.reduce((s, g) => s + g.assists, 0);
 
@@ -33,10 +35,15 @@ export default async function PlayerPage({ params }: PageProps) {
     assists: saved?.assists ?? fallbackAssists,
   };
 
+  const playerForClient: Player = {
+    ...base,
+    photoUrl: persistedPhoto ?? base.photoUrl,
+  };
+
   // pass base player (including photo that you already persist) and the totals override
   return (
     <PlayerClientView
-      playerFromServer={base as Player}
+      playerFromServer={playerForClient}
       totalsFromServer={totalsFromServer}
     />
   );
