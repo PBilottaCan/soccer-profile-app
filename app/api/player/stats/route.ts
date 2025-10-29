@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { createClient } from "redis";
+import type { PersistedTotals } from "@/lib/playerTotals";
 
 async function getRedis() {
   const url = process.env.REDIS_URL;
@@ -13,8 +14,6 @@ async function getRedis() {
   return client;
 }
 
-// Model we store in Redis: { goals: number, assists: number }
-type Totals = { goals: number; assists: number };
 const keyFor = (playerId: string) => `player:${playerId}:totals`;
 
 // POST /api/player/stats   body: { playerId, goals, assists }
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
       );
     }
     const client = await getRedis();
-    const value: Totals = { goals, assists };
+    const value: PersistedTotals = { goals, assists };
     await client.set(keyFor(playerId), JSON.stringify(value));
     await client.quit();
     return NextResponse.json({ success: true });
@@ -48,7 +47,7 @@ export async function GET(req: Request) {
     const client = await getRedis();
     const raw = await client.get(keyFor(playerId));
     await client.quit();
-    const totals: Totals | null = raw ? JSON.parse(raw) : null;
+    const totals: PersistedTotals | null = raw ? JSON.parse(raw) : null;
     return NextResponse.json({ totals });
   } catch (e) {
     console.error("Read totals error:", e);

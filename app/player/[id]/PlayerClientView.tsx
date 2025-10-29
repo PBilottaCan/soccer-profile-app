@@ -7,15 +7,14 @@ import PhotoUploader from "@/components/PhotoUploader";
 import StatAdjuster from "@/components/StatAdjuster";
 import StatTable from "@/components/StatTable";
 import { Player } from "@/data/players";
-
-type Totals = { goals: number; assists: number };
+import type { PersistedTotals } from "@/lib/playerTotals";
 
 export default function PlayerClientView({
   playerFromServer,
   totalsFromServer,
 }: {
   playerFromServer: Player;
-  totalsFromServer: Totals;
+  totalsFromServer: PersistedTotals;
 }) {
   // photoUrl already persists in your app – keep your existing logic.
   const [photoUrl, setPhotoUrl] = useState(playerFromServer.photoUrl);
@@ -24,7 +23,7 @@ export default function PlayerClientView({
   const [savingPhoto, setSavingPhoto] = useState(false);
   const [savingTotals, setSavingTotals] = useState(false);
 
-  async function persistTotals(next: Totals) {
+  async function persistTotals(next: PersistedTotals) {
     try {
       setSavingTotals(true);
       await fetch("/api/player/stats", {
@@ -41,7 +40,7 @@ export default function PlayerClientView({
     }
   }
 
-  async function handleTotalsChange(next: Totals) {
+  async function handleTotalsChange(next: PersistedTotals) {
     setGoals(next.goals);
     setAssists(next.assists);
     await persistTotals(next);
@@ -68,7 +67,10 @@ export default function PlayerClientView({
           ← Back to Team Roster
         </Link>
 
-        <PlayerProfileCard player={{ ...playerFromServer, photoUrl }} />
+        <PlayerProfileCard
+          player={{ ...playerFromServer, photoUrl }}
+          totalsOverride={{ goals, assists }}
+        />
 
         <PhotoUploader initialPhotoUrl={photoUrl} onChange={handlePhotoChange} />
 

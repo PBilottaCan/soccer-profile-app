@@ -1,9 +1,18 @@
 import { Player, getPlayerTotals } from "@/data/players";
 import { getLevelForPoints } from "@/data/levels";
+import type { PersistedTotals } from "@/lib/playerTotals";
 
-export default function PlayerProfileCard({ player }: { player: Player }) {
+type Props = {
+  player: Player;
+  totalsOverride?: PersistedTotals;
+};
+
+export default function PlayerProfileCard({ player, totalsOverride }: Props) {
   const totals = getPlayerTotals(player);
   const levelInfo = getLevelForPoints(player.points);
+  const goals = totalsOverride?.goals ?? totals.goals;
+  const assists = totalsOverride?.assists ?? totals.assists;
+  const gamesPlayed = totals.gamesPlayed;
 
   const isBlob = player.photoUrl.startsWith("blob:");
 
@@ -81,7 +90,7 @@ export default function PlayerProfileCard({ player }: { player: Player }) {
               Goals
             </div>
             <div className="text-xl font-bold text-gray-900">
-              {totals.goals}
+              {goals}
             </div>
           </div>
 
@@ -90,7 +99,7 @@ export default function PlayerProfileCard({ player }: { player: Player }) {
               Assists
             </div>
             <div className="text-xl font-bold text-gray-900">
-              {totals.assists}
+              {assists}
             </div>
           </div>
 
@@ -99,7 +108,7 @@ export default function PlayerProfileCard({ player }: { player: Player }) {
               Games
             </div>
             <div className="text-xl font-bold text-gray-900">
-              {totals.gamesPlayed}
+              {gamesPlayed}
             </div>
           </div>
         </div>

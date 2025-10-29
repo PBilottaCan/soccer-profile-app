@@ -3,25 +3,8 @@ export const runtime = "nodejs";
 
 import { getPlayerById, Player } from "@/data/players";
 import PlayerClientView from "./PlayerClientView";
-import { createClient } from "redis";
-
-type Totals = { goals: number; assists: number };
-
-async function getSavedTotals(playerId: string): Promise<Totals | null> {
-  const url = process.env.REDIS_URL;
-  if (!url) return null;
-  try {
-    const client = createClient({ url });
-    client.on("error", (e) => console.error("Redis error:", e));
-    await client.connect();
-    const raw = await client.get(`player:${playerId}:totals`);
-    await client.quit();
-    return raw ? (JSON.parse(raw) as Totals) : null;
-  } catch (e) {
-    console.error("Totals read error:", e);
-    return null;
-  }
-}
+import type { PersistedTotals } from "@/lib/playerTotals";
+import { getPersistedTotals } from "@/lib/playerTotals";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -41,11 +24,11 @@ export default async function PlayerPage({ params }: PageProps) {
   }
 
   // Prefer persisted totals; fall back to computed from the seed stats
-  const saved = await getSavedTotals(id);
+  const saved = await getPersistedTotals(id);
   const fallbackGoals = base.stats.reduce((s, g) => s + g.goals, 0);
   const fallbackAssists = base.stats.reduce((s, g) => s + g.assists, 0);
 
-  const totalsFromServer: Totals = {
+  const totalsFromServer: PersistedTotals = {
     goals: saved?.goals ?? fallbackGoals,
     assists: saved?.assists ?? fallbackAssists,
   };

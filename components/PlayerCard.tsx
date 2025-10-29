@@ -2,14 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { Player, getPlayerTotals } from "@/data/players";
 import { getLevelForPoints } from "@/data/levels";
+import type { PersistedTotals } from "@/lib/playerTotals";
 
 type Props = {
   player: Player;
+  totalsOverride?: PersistedTotals;
 };
 
-export default function PlayerCard({ player }: Props) {
+export default function PlayerCard({ player, totalsOverride }: Props) {
   const totals = getPlayerTotals(player);
   const levelInfo = getLevelForPoints(player.points);
+  const goals = totalsOverride?.goals ?? totals.goals;
+  const assists = totalsOverride?.assists ?? totals.assists;
 
   return (
     <Link
@@ -54,14 +58,14 @@ export default function PlayerCard({ player }: Props) {
           <span className="text-gray-500 text-[11px] uppercase tracking-wide">
             G
           </span>
-          <span>{totals.goals}</span>
+          <span>{goals}</span>
         </div>
 
         <div className="flex flex-col">
           <span className="text-gray-500 text-[11px] uppercase tracking-wide">
             A
           </span>
-          <span>{totals.assists}</span>
+          <span>{assists}</span>
         </div>
 
         <div className="flex flex-col">
