@@ -15,6 +15,7 @@ export type Player = {
   photoUrl: string;
   points: number;          // <-- NEW: total points earned
   stats: GameStat[];
+  playerOfGame?: number;   // optional: number of Player of the Game awards
 };
 
 // ---- SAMPLE DATA ----
