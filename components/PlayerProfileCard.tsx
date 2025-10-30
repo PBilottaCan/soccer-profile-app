@@ -59,7 +59,7 @@ export default function PlayerProfileCard({ player, totalsOverride, onPhotoChang
     <div className="bg-white rounded-xl shadow p-6 flex flex-col gap-6 md:flex-row">
       {/* Left column: photo + core badge */}
       <div className="flex flex-col items-center text-center md:w-1/3">
-        <div className="relative w-42 h-42 rounded-full overflow-hidden border-2 border-red-600 bg-white shadow flex items-center justify-center mx-auto mt-2 mb-3">
+        <div className="relative w-42 h-42 rounded-full overflow-hidden border-2 border-red-800 bg-white shadow flex items-center justify-center mx-auto mt-2 mb-3">
           <img
             src={player.photoUrl}
             alt={player.name}
@@ -78,13 +78,13 @@ export default function PlayerProfileCard({ player, totalsOverride, onPhotoChang
             #{player.number} {player.name}
           </div>
 
-          <div className="text-xs inline-block bg-red-600 text-white rounded-full px-2 py-1 font-semibold uppercase tracking-wide mt-2">
+          <div className="text-xs inline-block bg-red-800 text-white rounded-full px-2 py-1 font-semibold uppercase tracking-wide mt-2">
             {player.position}
           </div>
 
           {/* Level and points */}
           <div className="mt-3 flex flex-col items-center gap-1">
-            <div className="text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-full px-2 py-1 text-center leading-snug">
+            <div className="text-xs font-semibold text-red-800 bg-red-50 border border-red-200 rounded-full px-2 py-1 text-center leading-snug">
               {levelInfo.name}
             </div>
             <div className="text-[11px] text-gray-600 font-medium leading-tight text-center">

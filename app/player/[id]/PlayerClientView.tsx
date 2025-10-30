@@ -24,7 +24,8 @@ export default function PlayerClientView({
   const [assists, setAssists] = useState<number>(totalsFromServer.assists);
   const [savingPhoto, setSavingPhoto] = useState(false);
   const [savingTotals, setSavingTotals] = useState(false);
-  const [playerOfGame, setPlayerOfGame] = useState(playerFromServer.playerOfGame ?? 0);
+  const [playerOfGame, setPlayerOfGame] = useState<number>(playerFromServer.playerOfGame ?? 0);
+  const [savingPog, setSavingPog] = useState(false);
 
   async function persistTotals(next: PersistedTotals) {
     try {
@@ -63,22 +64,36 @@ export default function PlayerClientView({
     }
   }
 
+  async function handlePogChange(nextCount: number) {
+    setPlayerOfGame(nextCount);
+    try {
+      setSavingPog(true);
+      await fetch("/api/player/playerOfGame", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId: playerFromServer.id, playerOfGame: nextCount }),
+      });
+    } finally {
+      setSavingPog(false);
+    }
+  }
+
   return (
     <main className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        <Link href="/" className="text-sm text-red-600 hover:underline font-medium">
+        <Link href="/" className="text-sm text-red-800 hover:underline font-medium">
           ← Back to Team Roster
         </Link>
 
         <PlayerProfileCard
-          player={{ ...playerFromServer, photoUrl }}
+          player={{ ...playerFromServer, photoUrl, playerOfGame }}
           totalsOverride={{ goals, assists }}
           onPhotoChange={handlePhotoChange}
         />
 
-        {(savingPhoto || savingTotals) && (
-          <div className="text-[11px] text-red-600 font-semibold">
-            {savingPhoto ? "Saving photo..." : "Saving stats..."}
+        {(savingPhoto || savingTotals || savingPog) && (
+          <div className="text-[11px] text-red-800 font-semibold">
+            {savingPhoto ? "Saving photo..." : savingTotals ? "Saving stats..." : "Saving player of the game..."}
           </div>
         )}
 
@@ -87,10 +102,11 @@ export default function PlayerClientView({
           assists={assists}
           onChange={(g, a) => handleTotalsChange({ goals: g, assists: a })}
           playerOfGame={playerOfGame}
-          onPlayerOfGameChange={setPlayerOfGame}
+          onPlayerOfGameChange={handlePogChange}
         />
 
         <StatTable stats={playerFromServer.stats} />
+
         <div className="bg-white rounded-xl shadow p-6 mt-6">
           <div className="text-sm text-gray-500 font-semibold font-bold uppercase tracking-wide mb-4">
             Milestones

@@ -62,7 +62,7 @@ export default function PhotoUploader({
   return (
     <div className="bg-white rounded-xl shadow p-4 flex flex-col md:flex-row md:items-center gap-4">
       <div className="flex items-center gap-4">
-        <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-red-600 bg-white shadow flex items-center justify-center">
+        <div className="w-20 h-20 rounded-xl overflow-hidden border-2 border-red-800 bg-white shadow flex items-center justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={previewUrl}
@@ -97,7 +97,7 @@ export default function PhotoUploader({
         <button
           type="button"
           onClick={triggerFileDialog}
-          className="px-3 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 active:scale-95 transition"
+          className="px-3 py-2 rounded-lg bg-red-800 text-white text-sm font-semibold hover:bg-red-900 active:scale-95 transition"
         >
           {uploading ? "Uploading..." : "Upload / Change Photo"}
         </button>
