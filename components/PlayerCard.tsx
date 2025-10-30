@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Player, getPlayerTotals } from "@/data/players";
 import { getLevelForPoints } from "@/data/levels";
 import type { PersistedTotals } from "@/lib/playerTotals";
+import PhotoUploader from "./PhotoUploader";
+import { useState } from "react";
 
 type Props = {
   player: Player;
@@ -14,24 +18,32 @@ export default function PlayerCard({
   totalsOverride,
   photoOverride,
 }: Props) {
+  const [photoUrl, setPhotoUrl] = useState(photoOverride ?? player.photoUrl);
+
+  async function handlePhotoChange(newUrl: string) {
+    setPhotoUrl(newUrl);
+    await fetch("/api/player/photo", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ playerId: player.id, photoUrl: newUrl }),
+    });
+  }
+
   const totals = getPlayerTotals(player);
   const levelInfo = getLevelForPoints(player.points);
   const goals = totalsOverride?.goals ?? totals.goals;
   const assists = totalsOverride?.assists ?? totals.assists;
-  const photoUrl = photoOverride ?? player.photoUrl;
 
   return (
     <Link
       href={`/player/${player.id}`}
-      className="bg-white rounded-xl shadow p-4 flex flex-col items-center text-center hover:shadow-lg hover:-translate-y-0.5 transition"
+      className="bg-white rounded-xl shadow p-4 flex flex-col items-center text-center hover:shadow-lg hover:-translate-y-0.5 transition border-4 border-blue-600"
     >
-      {/* Player photo */}
-      <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-red-600 bg-white flex items-center justify-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={photoUrl}
-          alt={player.name}
-          className="object-contain w-full h-full"
+      {/* Player photo with overlayed upload button */}
+      <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-blue-600 bg-white flex items-center justify-center">
+        <PhotoUploader
+          initialPhotoUrl={photoUrl}
+          onChange={handlePhotoChange}
         />
       </div>
 
@@ -41,14 +53,14 @@ export default function PlayerCard({
           #{player.number} {player.name}
         </div>
 
-        <div className="text-[11px] inline-block bg-red-600 text-white rounded-full px-2 py-1 font-semibold uppercase tracking-wide mt-1">
+        <div className="text-[11px] inline-block bg-blue-600 text-white rounded-full px-2 py-1 font-semibold uppercase tracking-wide mt-1">
           {player.position}
         </div>
       </div>
 
       {/* Level / points */}
       <div className="mt-3 flex flex-col items-center gap-1">
-        <div className="text-xs font-semibold text-red-700 bg-red-50 border border-red-200 rounded-full px-2 py-1">
+        <div className="text-xs font-semibold text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2 py-1">
           {levelInfo.name}
         </div>
         <div className="text-[11px] text-gray-600 font-medium">
@@ -59,21 +71,21 @@ export default function PlayerCard({
       {/* Season summary stats */}
       <div className="mt-4 flex gap-4 text-sm font-semibold">
         <div className="flex flex-col">
-          <span className="text-gray-500 text-[11px] uppercase tracking-wide">
+          <span className="text-blue-600 text-base uppercase tracking-wide">
             G
           </span>
           <span>{goals}</span>
         </div>
 
         <div className="flex flex-col">
-          <span className="text-gray-500 text-[11px] uppercase tracking-wide">
+          <span className="text-blue-600 text-base uppercase tracking-wide">
             A
           </span>
           <span>{assists}</span>
         </div>
 
         <div className="flex flex-col">
-          <span className="text-gray-500 text-[11px] uppercase tracking-wide">
+          <span className="text-blue-600 text-base uppercase tracking-wide">
             GP
           </span>
           <span>{totals.gamesPlayed}</span>
